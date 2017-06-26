@@ -9,7 +9,7 @@ Course 2 - Data Structures: *Complete*
 
 Course 3 - Algorithms on Graphs: *Complete*
 
-Course 4 - Algorithms on String: *Not Started*
+Course 4 - Algorithms on Strings: *Not Started*
 
 Course 5 - Advanced Algorithms and Complexity: *Not Started*
 
