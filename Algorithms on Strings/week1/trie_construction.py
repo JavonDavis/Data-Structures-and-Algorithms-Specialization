@@ -32,7 +32,7 @@ class TrieNode:  # Tries are equal if they have the same label
                     return child
         return None
 
-    def is_lead(self):
+    def is_leaf(self):
         return len(self.children) == 0
 
     def add(self, other):
