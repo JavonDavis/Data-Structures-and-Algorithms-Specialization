@@ -107,13 +107,64 @@ public class WeekFour {
 		return order;
 	}
 	
-	int lcp(String s1, String s2) {
-		int i = 0;
-		int n = Math.min(s1.length(), s2.length());
-		for(i < n; ++i) {
-			if(s1.charAt(i) != s2.charAt(i))
+	int lcpOfSuffixes(String s, int i, int j, int equal) {
+		int lcp = Math.max(0, equal);
+		while(i + lcp < s.length() && j + lcp < s.length()) {
+			if(s.charAt(i + lcp) == s.charAt(j + lcp)) {
+				++lcp;
+			} else {
 				break;
+			}
 		}
-		return i;
+		return lcp;
+	}
+	
+	int[] invertSuffixArray(int[] order) {
+		int[] pos = new int[order.length];
+		for(int i = 0; i< pos.length - 1; ++i) {
+			pos[order[i]] = i;
+		}
+		return pos;
+	}
+	
+	int[] computeLCPArray(String s, int[] order) {
+		int[] lcpArray = new int[s.lenght() - 1];
+		int lcp = 0;
+		int[] posInOrder = invertSuffixArray(order);
+		int suffix = order[0];
+		for(int i = 0; i < s.length(); ++i) {
+			int orderIndex = posInOrder[suffix];
+			if(orderIndex == s.length() - 1) {
+				lcp = 0;
+				suffix = (suffix + 1) % s.length();
+				continue;
+			}
+			int nextSuffix = order[orderIndex + 1];
+			lcp = lcpOfSuffixes(s, suffix, nextSuffix, lcp - 1);
+			lcpArray[orderIndex] = lcp;
+			suffix = (suffix + 1) % s.length();
+		}
+		return lcpArray;
+	}
+	
+	SuffixTreeNode stFromSA(String s, int[] order, int[] lcpArray) {
+		SuffixTreeNode root;
+		return root;
+	}
+	
+	private static class SuffixTreeNode {
+		SuffixTreeNode parent;
+		Map<Character, SuffixTreeNode> children;
+		int stringDepth;
+		int edgeStart;
+		int edgeEnd;
+		
+		SuffixTreeNode() {
+			children = new HashMap<>();
+			parent = null;
+			stringDepth = 0;
+			edgeStart = -1;
+			edgeEnd = -1;
+		}
 	}
 }
