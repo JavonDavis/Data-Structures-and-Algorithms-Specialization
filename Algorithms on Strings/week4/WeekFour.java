@@ -147,8 +147,44 @@ public class WeekFour {
 		return lcpArray;
 	}
 	
+	SuffixTreeNode createNewLeaf(SuffixTreeNode node, Strings s, int suffix) {
+		SuffixTreeNode leaf = new SuffixTreeNode(new HashMap<>(), node, s.length() - suffix, suffix + node.stringDepth, s.length() - 1);
+			node.children.put(s.charAt(leaf.edgeStart), leaf);
+			return leaf;
+	}
+	
+	SuffixTreeNode breakEdge(SuffixTreeNode node, String s, int start, int offset) {
+		char startChar = s.charAt(start);
+		char midChar = s.charAt(start + offset);
+		SuffixTreeNode midNode = new SuffixTreeNode(new HashMap<>(), node, node.stringDepth + offset, start, start + offset - 1);
+		midNode.children.put(midChar, node.children.get(startChar));
+		node.children.get(startChar).parent = midNode;
+		node.children.get(startChar).edgeStart = start + offset;
+		node.children.put(startChar, midNode);
+		return midNode;
+	}
+	
 	SuffixTreeNode stFromSA(String s, int[] order, int[] lcpArray) {
 		SuffixTreeNode root;
+		int lcpPrev = 0;
+		SuffixTreeNode currNode = root;
+		for(int i = 0; i < s.length() - 1; ++i) {
+			int suffix = order[i];
+			while(currNode.stringDepth > lcpPrev) {
+				currNode = currNode.parent;
+			}
+			if(currNode.stringDepth == lcpPrev) {
+				currnode = createNewLeaf(currNode, s, suffix);
+			} else {
+				int edgeStart = order[i - 1] + currNode.stringDepth;
+				int offset = lcpPrev - currNode.stringDepth;
+				SuffixTreeNode midNode = brakeEdge(currNode, s, edgeStart, offset);
+				currNode = createNewLeaf(midNode, s, suffix);
+			}
+			if(i < s.length() - 1) {
+				lcpPrev = lcpArray[i];
+			}
+		}
 		return root;
 	}
 	
@@ -160,11 +196,19 @@ public class WeekFour {
 		int edgeEnd;
 		
 		SuffixTreeNode() {
-			children = new HashMap<>();
-			parent = null;
-			stringDepth = 0;
-			edgeStart = -1;
-			edgeEnd = -1;
+			this.children = new HashMap<>();
+			this.parent = null;
+			this.stringDepth = 0;
+			this.edgeStart = -1;
+			this.edgeEnd = -1;
+		}
+		
+		SuffixTreeNode(Map<Character, SuffixTreeNode> children, SuffixTreeNode parent, int stringDepth, int edgeStart, int edgeEnd) {
+			this.children = children;
+			this.parent = parent;
+			this.stringDepth = stringDepth;
+			this.edgeStart = edgeStart;
+			this.edgeEnd = edgeEnd;
 		}
 	}
 }
