@@ -23,12 +23,38 @@ public class KnuthMorrisPratt {
         }
     }
 
+	int[] computePrefixFunction(String pattern) {
+		int[] result = new int[pattern.length()];
+		result[0] = 0;
+		int border = 0;
+		for(int i = 1; i < pattern.length(); ++i) {
+			while(border > 0 && pattern.charAt(i) != pattern.charAt(border)) {
+				border = result[border - 1];
+			}
+			
+			if(pattern.charAt(i) == pattern.charAt(border)) {
+				++border;
+			} else {
+				border = 0;
+			}
+			result[i] = border;
+		}
+		return result;
+	}
+	
     // Find all the occurrences of the pattern in the text and return
     // a list of all positions in the text (starting from 0) where
     // the pattern starts in the text.
     public List<Integer> findPattern(String pattern, String text) {
         ArrayList<Integer> result = new ArrayList<Integer>();
         // Implement this function yourself
+		String s = pattern + "$"+text;
+		int[] prefixFunction = computePrefixFunction(s);
+		for(int i = pattern.length() + 1; i < s.length(); ++i) {
+			if(prefixFunction[i] == pattern.length()) {
+				result.add(i - 2*pattern.length());
+			}
+		}
         return result;
     }
 

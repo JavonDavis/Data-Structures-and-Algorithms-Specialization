@@ -1,65 +1,51 @@
 public class WeekFour {
 	
 	int[] sortCharacters(String s) {
-		int alphabetLength = 26;
+		int alphabetLength = 5;
 		int[] order = new int[s.length()];
-		int[] count = int[alphabetLegth];
-		
+		char[] alphabet = new char[]{'$', 'A','C','G','T'};
+		Map<Character, Integer> count = new HashMap<>();
+		count.put('$', 0);
+		count.put('A', 0);
+		count.put('C', 0);
+		count.put('G', 0);
+		count.put('T', 0);
 		for(int i = 0; i < s.length(); ++i) {
-			++count[s.charAt(i)];
+			char c = s.charAt(i);
+			count.put(c, count.get(c) + 1);
 		}
 		
-		for(int j = 1; i < alphabetLength; ++j) {
-			count[j] += count[j - 1];
+		for(int j = 1; j < alphabetLength; ++j) {
+			count.put(alphabet[j],count.get(alphabet[j]) + count.get(alphabet[j - 1]));
 		}
 		
 		for(int i = s.length() - 1; i >= 0; --i) {
-			int c = s.charAt(i);
-			--count[c];
-			order[count[c]] = i;
+			char c = s.charAt(i);
+			count.put(c,count.get(c) - 1);
+			order[count.get(c)] = i;
 		}
 		return order;
 	}
 	
 	int[] computeCharClasses(String s, int[] order) { 
-		int[] class = new int[s.length()];
-		class[order[0]] = 0; // Set the smallest position to the first equivalence class 
+		int[] mClass = new int[s.length()];
+		mClass[order[0]] = 0; // Set the smallest position to the first equivalence class 
 		for(int i = 1; i < s.length(); ++i) {
 			if(s.charAt(order[i]) != s.charAt(order[i - 1])) {
-				class[order[i]] = class[order[i-1]] + 1;
+				mClass[order[i]] = mClass[order[i-1]] + 1;
 			} else {
-				class[order[i]] = class[order[i-1]];
+				mClass[order[i]] = mClass[order[i-1]];
 			}
 		}
-		return class;
+		return mClass;
 	}
 	
-	int[] countSort(int[] arr) {
-		m = 26; // Length of alphabet
-		int[] count = new int[m];
-		for(int i = 0; i < arr.length; ++i) {
-			count[arr[i]] += 1;
-		}
-		
-		int[] pos = new int[m]; // Store positions
-		pos[0] = 0;
-		for(int j = 1; j< m; ++j) { // k will occupy range [pos[k], pos[k + 1] - 1]
-			pos[j] = pos[j - 1] + count[j - 1];
-		}
-		
-		int[] sortedArr = new int[arr.length];
-		for(int i = 0; i < arr.length; ++i) {
-			sortedArr[pos[arr[i]]] = arr[i];
-			pos[arr[i]] += 1;
-		}
-	}
-	
-	int[] sortDoubled(String s, int L, int[] order, int[] class) {
+	int[] sortDoubled(String s, int L, int[] order, int[] mClass) {
 		int[] count = new int[s.length()];
 		int[] newOrder = new int[s.length()];
 		
 		for(int i = 0; i < s.length(); ++i) {
-			++count[class[i]];
+			++count[mClass[i]];
 		}
 		
 		for(int j = 1; j < s.length(); ++j) {
@@ -68,14 +54,14 @@ public class WeekFour {
 		
 		for(int i = s.length() - 1; i >= 0; --i) {
 			int start = (order[i] - L + s.length()) % s.length();
-			int cl = class[start];
+			int cl = mClass[start];
 			--count[cl];
 			newOrder[count[cl]] = start;
 		}
 		return newOrder;
 	}
 	
-	int[] updateClasses(int[] newOrder, int[] class, int L) {
+	int[] updateClasses(int[] newOrder, int[] mClass, int L) {
 		int n = newOrder.length;
 		int[] newClass = new int[n];
 		newClass[newOrder[0]] = 0;
@@ -85,27 +71,33 @@ public class WeekFour {
 			int mid = (cur + L) % n;
 			int midPrev = (prev + L) % n;
 			
-			if(class[cur] != class[prev] || class[mid] != class[midPrev]) {
+			if(mClass[cur] != mClass[prev] || mClass[mid] != mClass[midPrev]) {
 				newClass[cur] = newClass[prev] + 1;
 			} else {
 				newClass[cur] = newClass[prev];
 			}
 		}
+		return newClass;
 	}
-	
-	int[] buildSuffixArray(String s) {
-		int[] order = sortCharacters(s);
-		int[] class = computeCharClasses(s, order);
+
+    // Build suffix array of the string text and
+    // return an int[] result of the same length as the text
+    // such that the value result[i] is the index (0-based)
+    // in text where the i-th lexicographically smallest
+    // suffix of text starts.
+    public int[] computeSuffixArray(String s) {
+        int[] order = sortCharacters(s);
+		int[] mClass = computeCharClasses(s, order);
 		
 		int L = 1;
 		
 		while(L < s.length()) {
-			order = sortDoubled(s, L, order, class);
-			class = updateClasses(order, class, L);
+			order = sortDoubled(s, L, order, mClass);
+			mClass = updateClasses(order, mClass, L);
 			L = 2*L;
 		}
 		return order;
-	}
+    }
 	
 	int lcpOfSuffixes(String s, int i, int j, int equal) {
 		int lcp = Math.max(0, equal);
